@@ -8,12 +8,12 @@ function StartState:update(dt)
     gSounds['paddle-hit']:play()
   end
 
-  if (love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return')) then
+  if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
+    gSounds['select']:play()
+
     if highlighted == 1 then
-      gSounds['select']:play()
-      gStateMachine:change('play')
-    else
-      gSounds['select']:play()
+      props = {}
+      gStateMachine:change('select-paddle', props)
     end
   end
 

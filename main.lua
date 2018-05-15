@@ -46,12 +46,18 @@ function love.load()
     ['paddles'] = generateQuadPaddles(gTextures['main']),
     ['balls'] = generateQuadsBall(gTextures['main']),
     ['bricks'] = generateQuadsBricks(gTextures['main']),
+    ['hearts'] = generateQuads(gTextures['hearts'], 10, 9),
+    ['arrows'] = generateQuads(gTextures['arrows'], 24, 24)
   }
 
   -- setup states
   states = {
     ['start'] = function() return StartState() end,
+    ['select-paddle'] = function() return PaddleState() end,
+    ['serve'] = function() return ServeState() end,
     ['play'] = function() return PlayState() end,
+    ['victory'] = function() return VictoryState() end,
+    ['gameOver'] = function() return GameOverState() end,
   }
   gStateMachine = StateMachine(states)
 
@@ -66,6 +72,11 @@ end
 
 function love.resize(w, h)
   push:resize(w, h)
+end
+
+
+function love.keypressed(key)
+  love.keyboard.keyPressed[key] = true
 end
 
 
@@ -84,16 +95,12 @@ function love.draw()
                       VIRTUAL_HEIGHT / (backgroundHeight - 1))
 
   gStateMachine:render()
-  displayFps()
+  renderFps()
   push:apply('end')
 end
 
 
-function love.keypressed(key)
-  love.keyboard.keyPressed[key] = true
-end
-
-
+-- Helpers
 function love.keyboard.wasPressed(key)
   if love.keyboard.keyPressed[key] then
     return true
@@ -102,9 +109,31 @@ function love.keyboard.wasPressed(key)
 end
 
 
-function displayFps()
+function renderFps()
   love.graphics.setFont(gFonts['small'])
   love.graphics.setColor(0, 255, 0, 255)
   love.graphics.print('FPS : ' ..tostring(love.timer.getFPS()), 5, 5)
   love.graphics.setColor(255, 255, 255, 255)
+end
+
+
+function renderScore(score)
+  love.graphics.setFont(gFonts['small'])
+  love.graphics.print('Score:', VIRTUAL_WIDTH - 60, 5)
+  love.graphics.printf(tostring(score), VIRTUAL_WIDTH - 50, 5, 40, 'right')
+end
+
+
+function renderHealth(health)
+  local healthX = VIRTUAL_WIDTH - 100
+
+  for i = 1, health do
+    love.graphics.draw(gTextures['hearts'], gQuads['hearts'][1], healthX, 4)
+    healthX = healthX + 11
+  end
+
+  for i = 1, 3 - health do
+    love.graphics.draw(gTextures['hearts'], gQuads['hearts'][2], healthX, 4)
+    healthX = healthX + 11
+  end
 end
